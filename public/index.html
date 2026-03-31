@@ -13,16 +13,17 @@
 <div class="container">
     <h2>Cadastro de Paciente</h2>
 
-    <input type="text" id="nome" placeholder="Nome" required>
-    <input type="text" id="celular" placeholder="Celular" required>
-    <input type="email" id="email" placeholder="Email">
+    <input type="text" id="nome" placeholder="Nome" autocomplete="name">
+    <input type="text" id="celular" placeholder="Celular" autocomplete="tel">
+    <input type="email" id="email" placeholder="Email" autocomplete="email">
 
-    <button onclick="cadastrar()">Cadastrar</button>
+    <button onclick="alert('clicou')">Cadastrar</button>
 
     <div id="mensagem" class="msg"></div>
 </div>
 
 <script>
+console.log("JS carregado");
 async function cadastrar() {
     const nome = document.getElementById('nome').value;
     const celular = document.getElementById('celular').value;
