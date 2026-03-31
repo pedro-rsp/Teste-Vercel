@@ -17,54 +17,35 @@
     <input type="text" id="celular" placeholder="Celular" autocomplete="tel">
     <input type="email" id="email" placeholder="Email" autocomplete="email">
 
-    <button onclick="alert('clicou')">Cadastrar</button>
+    <button onclick="cadastrar()">Cadastrar</button>
 
     <div id="mensagem" class="msg"></div>
 </div>
 
 <script>
-console.log("JS carregado");
 async function cadastrar() {
+    console.log("FUNÇÃO CHAMADA");
+
     const nome = document.getElementById('nome').value;
     const celular = document.getElementById('celular').value;
     const email = document.getElementById('email').value;
-    const msg = document.getElementById('mensagem');
 
-    msg.textContent = '';
-    msg.className = 'msg';
-
-    if (!nome || !celular) {
-        msg.textContent = 'Preencha nome e celular.';
-        msg.classList.add('error');
-        return;
-    }
+    console.log("Dados:", nome, celular, email);
 
     try {
         const response = await fetch('/api/add', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nome, celular, email })
         });
 
-        const data = await response.json();
+        console.log("STATUS:", response.status);
 
-        if (response.ok) {
-            msg.textContent = 'Paciente cadastrado com sucesso!';
-            msg.classList.add('success');
-
-            document.getElementById('nome').value = '';
-            document.getElementById('celular').value = '';
-            document.getElementById('email').value = '';
-        } else {
-            msg.textContent = data.error || 'Erro ao cadastrar.';
-            msg.classList.add('error');
-        }
+        const text = await response.text();
+        console.log("RESPOSTA:", text);
 
     } catch (err) {
-        msg.textContent = 'Erro de conexão.';
-        msg.classList.add('error');
+        console.error("ERRO:", err);
     }
 }
 </script>
