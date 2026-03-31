@@ -1,2 +1,2 @@
-export const SUPABASE_URL = 'https://seu-projeto.supabase.co';
-export const SUPABASE_ANON_KEY = 'sua-anon-key';
+export const SUPABASE_URL = process.env.SUPABASE_URL;
+export const SUPABASE_KEY = process.env.SUPABASE_KEY;
