@@ -1,25 +1,44 @@
-import { checkEnv, sendError, supabaseRequest } from './database.js';
+const form = document.getElementById('loginForm');
+const mensagem = document.getElementById('mensagem');
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido.' });
-  if (!checkEnv(res)) return;
+form.addEventListener('submit', async function (event) {
+  event.preventDefault();
 
-  const { email, senha } = req.body || {};
+  mensagem.textContent = 'Entrando...';
+  mensagem.className = 'mensagem';
 
-  if (!email || !senha) {
-    return res.status(400).json({ error: 'Informe e-mail e senha.' });
-  }
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value.trim();
 
   try {
-    const query = `usuarios?email=eq.${encodeURIComponent(email)}&senha=eq.${encodeURIComponent(senha)}&select=id,nome,email,perfil&limit=1`;
-    const usuarios = await supabaseRequest(query);
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, senha })
+    });
 
-    if (!usuarios || usuarios.length === 0) {
-      return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
+    const data = await response.json();
+
+    if (!response.ok) {
+      mensagem.textContent = data.error || 'Erro ao fazer login.';
+      mensagem.className = 'mensagem erro';
+      return;
     }
 
-    return res.status(200).json({ success: true, usuario: usuarios[0] });
+    localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+    mensagem.textContent = 'Login realizado com sucesso!';
+    mensagem.className = 'mensagem sucesso';
+
+    setTimeout(() => {
+      window.location.href = '/pacientes.html';
+    }, 800);
+
   } catch (error) {
-    return sendError(res, error);
+    console.error(error);
+    mensagem.textContent = 'Erro de conexão com o servidor.';
+    mensagem.className = 'mensagem erro';
   }
-}
+});
