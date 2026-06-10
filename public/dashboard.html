@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Clínica IHC</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <nav class="nav">
+      <div class="logo">Clínica IHC</div>
+      <div class="links">
+        <a class="active" href="/dashboard.html">Dashboard</a>
+        <a href="/pacientes.html">Pacientes</a>
+        <a href="/agenda.html">Agenda</a>
+        <a href="/tarefas.html">Tarefas</a>
+        <a href="/relatorio.html">Relatório</a>
+        <span id="usuarioLogado"></span>
+        <button class="btn-secondary" onclick="sair()">Sair</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero-panel">
+      <div>
+        <span class="eyebrow">Visão geral</span>
+        <h1>Dashboard da Clínica</h1>
+        <p>Acompanhe rapidamente pacientes, agendamentos e tarefas cadastradas no sistema.</p>
+      </div>
+      <a class="btn" href="/relatorio.html">Ver relatório</a>
+    </section>
+
+    <section class="stats-grid" id="cardsResumo">
+      <div class="stat-card"><span>Total de Pacientes</span><strong id="totalPacientes">0</strong><small>Pacientes cadastrados</small></div>
+      <div class="stat-card"><span>Agendamentos</span><strong id="totalAgendamentos">0</strong><small>Sessões registradas</small></div>
+      <div class="stat-card"><span>Confirmadas</span><strong id="totalConfirmadas">0</strong><small>Consultas confirmadas</small></div>
+      <div class="stat-card"><span>Tarefas Abertas</span><strong id="tarefasAbertas">0</strong><small>Demandas pendentes</small></div>
+    </section>
+
+    <section class="dashboard-grid">
+      <div class="card">
+        <h2>Status dos Agendamentos</h2>
+        <div class="progress-list">
+          <div>
+            <div class="progress-label"><span>Confirmadas</span><strong id="pctConfirmadas">0%</strong></div>
+            <div class="progress"><span id="barConfirmadas"></span></div>
+          </div>
+          <div>
+            <div class="progress-label"><span>Pendentes</span><strong id="pctPendentes">0%</strong></div>
+            <div class="progress"><span id="barPendentes"></span></div>
+          </div>
+          <div>
+            <div class="progress-label"><span>Canceladas</span><strong id="pctCanceladas">0%</strong></div>
+            <div class="progress"><span id="barCanceladas"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Resumo Operacional</h2>
+        <div class="summary-list">
+          <p><strong id="totalTarefas">0</strong> tarefas cadastradas</p>
+          <p><strong id="tarefasConcluidas">0</strong> tarefas concluídas</p>
+          <p><strong id="agendamentosPendentes">0</strong> agendamentos pendentes</p>
+          <p><strong id="proximaSessao">Nenhuma sessão encontrada</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Últimos Agendamentos</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Data</th>
+              <th>Hora</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="ultimosAgendamentos"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

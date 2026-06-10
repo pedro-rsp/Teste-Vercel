@@ -32,7 +32,7 @@ formLogin.addEventListener('submit', async (event) => {
     mostrarMensagem('Login realizado com sucesso! Redirecionando...', 'sucesso');
 
     setTimeout(() => {
-      window.location.href = '/pacientes.html';
+      window.location.href = '/dashboard.html';
     }, 500);
   } catch (error) {
     console.error('Erro no login:', error);
