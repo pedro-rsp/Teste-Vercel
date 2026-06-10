@@ -1,44 +1,43 @@
-const formLogin = document.getElementById('formLogin');
-const mensagem = document.getElementById('mensagem');
+import { checkEnv, supabaseRequest, sendError } from './database.js';
 
-if (localStorage.getItem('usuarioClinica')) {
-  window.location.href = '/pacientes.html';
-}
-
-formLogin.addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const email = document.getElementById('email').value.trim();
-  const senha = document.getElementById('senha').value.trim();
-
-  mensagem.textContent = '';
-  mensagem.className = 'msg';
-
-  if (!email || !senha) {
-    mensagem.textContent = 'Preencha e-mail e senha.';
-    mensagem.classList.add('error');
-    return;
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método não permitido.' });
   }
+
+  if (!checkEnv(res)) return;
 
   try {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, senha })
-    });
+    const { email, senha } = req.body;
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      mensagem.textContent = data.error || 'Erro ao fazer login.';
-      mensagem.classList.add('error');
-      return;
+    if (!email || !senha) {
+      return res.status(400).json({ error: 'Informe e-mail e senha.' });
     }
 
-    localStorage.setItem('usuarioClinica', JSON.stringify(data.usuario));
-    window.location.href = '/pacientes.html';
-  } catch {
-    mensagem.textContent = 'Erro de conexão com o servidor.';
-    mensagem.classList.add('error');
+    const usuarios = await supabaseRequest(
+      `usuarios?email=eq.${encodeURIComponent(email.trim())}&select=*`
+    );
+
+    const usuario = usuarios[0];
+
+    if (!usuario) {
+      return res.status(401).json({ error: 'Usuário não encontrado.' });
+    }
+
+    if (usuario.senha !== senha) {
+      return res.status(401).json({ error: 'Senha incorreta.' });
+    }
+
+    return res.status(200).json({
+      message: 'Login realizado com sucesso.',
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        perfil: usuario.perfil
+      }
+    });
+  } catch (error) {
+    return sendError(res, error);
   }
-});
+}
