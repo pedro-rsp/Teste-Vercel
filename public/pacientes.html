@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pacientes | Clínica IHC</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <nav class="nav">
+      <div class="logo">Clínica IHC</div>
+      <div class="links">
+        <a class="active" href="/pacientes.html">Pacientes</a>
+        <a href="/agenda.html">Agenda</a>
+        <a href="/tarefas.html">Tarefas</a>
+        <span id="usuarioLogado"></span>
+        <button class="btn-secondary" onclick="sair()">Sair</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="card">
+      <h1>Cadastro de Pacientes</h1>
+      <p>Cadastre e consulte os pacientes da clínica.</p>
+
+      <form id="formPaciente" class="form-grid">
+        <div>
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" placeholder="Nome do paciente" required>
+        </div>
+        <div>
+          <label for="telefone">Telefone</label>
+          <input type="text" id="telefone" placeholder="(00) 00000-0000" required>
+        </div>
+        <div>
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="paciente@email.com">
+        </div>
+        <div class="actions">
+          <button type="submit">Cadastrar Paciente</button>
+        </div>
+      </form>
+
+      <div id="mensagem" class="msg"></div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Telefone</th>
+              <th>E-mail</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaPacientes"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/pacientes.js"></script>
+</body>
+</html>

@@ -1,73 +1,33 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Cadastro de Pacientes</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- CSS externo -->
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Clínica IHC</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
+<body class="login-body">
+  <main class="card login-card">
+    <h1>Clínica Psicológica</h1>
+    <p>Acesse o sistema com seu e-mail e senha.</p>
 
-<div class="container">
-    <h2>Cadastro de Paciente</h2>
+    <form id="formLogin" class="form-grid one">
+      <div>
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="usuario@email.com" autocomplete="email" required>
+      </div>
 
-    <input type="text" id="nome" placeholder="Nome" autocomplete="name">
-    <input type="text" id="celular" placeholder="Celular" autocomplete="tel">
-    <input type="email" id="email" placeholder="Email" autocomplete="email">
+      <div>
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="Sua senha" autocomplete="current-password" required>
+      </div>
 
-    <button onclick="cadastrar()">Cadastrar</button>
+      <button type="submit">Entrar</button>
+    </form>
 
     <div id="mensagem" class="msg"></div>
-</div>
+  </main>
 
-<script>
-async function cadastrar() {
-    const nome = document.getElementById('nome').value;
-    const celular = document.getElementById('celular').value;
-    const email = document.getElementById('email').value;
-    const msg = document.getElementById('mensagem');
-
-    msg.textContent = '';
-    msg.className = 'msg';
-
-    if (!nome || !celular) {
-        msg.textContent = 'Preencha nome e celular.';
-        msg.classList.add('error');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome, celular, email })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            // ✅ MOSTRAR SUCESSO
-            msg.textContent = 'Paciente cadastrado com sucesso!';
-            msg.classList.add('success');
-
-            // ✅ LIMPAR CAMPOS
-            document.getElementById('nome').value = '';
-            document.getElementById('celular').value = '';
-            document.getElementById('email').value = '';
-
-        } else {
-            msg.textContent = data.error || 'Erro ao cadastrar.';
-            msg.classList.add('error');
-        }
-
-    } catch (err) {
-        msg.textContent = 'Erro de conexão.';
-        msg.classList.add('error');
-    }
-}
-</script>
-
+  <script src="/js/login.js"></script>
 </body>
 </html>

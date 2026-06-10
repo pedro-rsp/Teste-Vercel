@@ -1,5 +1,14 @@
 {
+  "name": "clinica-ihc-vercel-supabase",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1"
-  }
+  },
+  "devDependencies": {}
 }
