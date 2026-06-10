@@ -8,33 +8,32 @@ function mostrarMensagem(texto, tipo = '') {
 }
 
 async function carregarPacientes() {
-  try {
-    const response = await fetch('/api/listar-pacientes');
-    const pacientes = await response.json();
+  const response = await fetch('/api/listar-pacientes');
+  const pacientes = await response.json();
 
-    if (!response.ok) throw new Error(pacientes.error || 'Erro ao carregar pacientes.');
+  tabelaPacientes.innerHTML = '';
 
-    tabelaPacientes.innerHTML = pacientes.length
-      ? pacientes.map((paciente) => `
-          <tr>
-            <td>${paciente.id}</td>
-            <td>${paciente.nome || '-'}</td>
-            <td>${paciente.telefone || '-'}</td>
-            <td>${paciente.email || '-'}</td>
-          </tr>
-        `).join('')
-      : '<tr><td colspan="4">Nenhum paciente cadastrado.</td></tr>';
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem(error.message, 'error');
+  if (!Array.isArray(pacientes) || pacientes.length === 0) {
+    tabelaPacientes.innerHTML = '<tr><td colspan="4">Nenhum paciente cadastrado.</td></tr>';
+    return;
   }
+
+  pacientes.forEach((paciente) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${paciente.id}</td>
+      <td>${paciente.nome || ''}</td>
+      <td>${paciente.telefone || ''}</td>
+      <td>${paciente.email || ''}</td>
+    `;
+    tabelaPacientes.appendChild(tr);
+  });
 }
 
 formPaciente.addEventListener('submit', async (event) => {
   event.preventDefault();
-  mostrarMensagem('Salvando paciente...');
 
-  const dados = {
+  const payload = {
     nome: document.getElementById('nome').value.trim(),
     telefone: document.getElementById('telefone').value.trim(),
     email: document.getElementById('email').value.trim()
@@ -44,18 +43,21 @@ formPaciente.addEventListener('submit', async (event) => {
     const response = await fetch('/api/add-paciente', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados)
+      body: JSON.stringify(payload)
     });
+
     const data = await response.json();
 
-    if (!response.ok) throw new Error(data.error || 'Erro ao cadastrar paciente.');
+    if (!response.ok) {
+      mostrarMensagem(data.error || 'Erro ao cadastrar paciente.', 'erro');
+      return;
+    }
 
     formPaciente.reset();
-    mostrarMensagem(data.message || 'Paciente cadastrado com sucesso.', 'success');
-    await carregarPacientes();
+    mostrarMensagem(data.message || 'Paciente cadastrado com sucesso.', 'sucesso');
+    carregarPacientes();
   } catch (error) {
-    console.error(error);
-    mostrarMensagem(error.message, 'error');
+    mostrarMensagem('Erro de conexão com o servidor.', 'erro');
   }
 });
 

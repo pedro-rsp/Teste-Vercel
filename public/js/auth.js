@@ -1,8 +1,7 @@
-const usuarioSalvo = localStorage.getItem('usuario');
-const usuario = usuarioSalvo ? JSON.parse(usuarioSalvo) : null;
+const usuario = JSON.parse(localStorage.getItem('usuarioLogado') || 'null');
 
 if (!usuario) {
-  window.location.href = '/index.html';
+  window.location.href = '/';
 }
 
 const usuarioLogado = document.getElementById('usuarioLogado');
@@ -11,6 +10,6 @@ if (usuarioLogado && usuario) {
 }
 
 function sair() {
-  localStorage.removeItem('usuario');
-  window.location.href = '/index.html';
+  localStorage.removeItem('usuarioLogado');
+  window.location.href = '/';
 }

@@ -8,32 +8,32 @@ function mostrarMensagem(texto, tipo = '') {
 }
 
 async function carregarTarefas() {
-  try {
-    const response = await fetch('/api/listar-tarefas');
-    const tarefas = await response.json();
+  const response = await fetch('/api/listar-tarefas');
+  const tarefas = await response.json();
 
-    if (!response.ok) throw new Error(tarefas.error || 'Erro ao carregar tarefas.');
+  listaTarefas.innerHTML = '';
 
-    listaTarefas.innerHTML = tarefas.length
-      ? tarefas.map((tarefa) => `
-          <article class="task-item">
-            <h3>${tarefa.titulo}</h3>
-            <p>${tarefa.descricao || 'Sem descrição.'}</p>
-            <span class="badge">${tarefa.concluida ? 'Concluída' : 'Pendente'}</span>
-          </article>
-        `).join('')
-      : '<p>Nenhuma tarefa cadastrada.</p>';
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem(error.message, 'error');
+  if (!Array.isArray(tarefas) || tarefas.length === 0) {
+    listaTarefas.innerHTML = '<p>Nenhuma tarefa cadastrada.</p>';
+    return;
   }
+
+  tarefas.forEach((tarefa) => {
+    const div = document.createElement('div');
+    div.className = 'task-card';
+    div.innerHTML = `
+      <h3>${tarefa.titulo || ''}</h3>
+      <p>${tarefa.descricao || 'Sem descrição.'}</p>
+      <span>${tarefa.concluida ? 'Concluída' : 'Pendente'}</span>
+    `;
+    listaTarefas.appendChild(div);
+  });
 }
 
 formTarefa.addEventListener('submit', async (event) => {
   event.preventDefault();
-  mostrarMensagem('Salvando tarefa...');
 
-  const dados = {
+  const payload = {
     titulo: document.getElementById('titulo').value.trim(),
     descricao: document.getElementById('descricao').value.trim()
   };
@@ -42,18 +42,21 @@ formTarefa.addEventListener('submit', async (event) => {
     const response = await fetch('/api/add-tarefa', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados)
+      body: JSON.stringify(payload)
     });
+
     const data = await response.json();
 
-    if (!response.ok) throw new Error(data.error || 'Erro ao cadastrar tarefa.');
+    if (!response.ok) {
+      mostrarMensagem(data.error || 'Erro ao cadastrar tarefa.', 'erro');
+      return;
+    }
 
     formTarefa.reset();
-    mostrarMensagem(data.message || 'Tarefa cadastrada com sucesso.', 'success');
-    await carregarTarefas();
+    mostrarMensagem(data.message || 'Tarefa cadastrada com sucesso.', 'sucesso');
+    carregarTarefas();
   } catch (error) {
-    console.error(error);
-    mostrarMensagem(error.message, 'error');
+    mostrarMensagem('Erro de conexão com o servidor.', 'erro');
   }
 });
 

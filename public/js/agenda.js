@@ -12,44 +12,45 @@ async function carregarPacientesSelect() {
   const response = await fetch('/api/listar-pacientes');
   const pacientes = await response.json();
 
-  if (!response.ok) throw new Error(pacientes.error || 'Erro ao carregar pacientes.');
-
-  selectPaciente.innerHTML = '<option value="">Selecione um paciente</option>' +
-    pacientes.map((paciente) => `<option value="${paciente.id}">${paciente.nome}</option>`).join('');
+  selectPaciente.innerHTML = '<option value="">Selecione um paciente</option>';
+  if (Array.isArray(pacientes)) {
+    pacientes.forEach((paciente) => {
+      const option = document.createElement('option');
+      option.value = paciente.id;
+      option.textContent = paciente.nome;
+      selectPaciente.appendChild(option);
+    });
+  }
 }
 
 async function carregarAgenda() {
-  try {
-    const response = await fetch('/api/listar-agenda');
-    const agendamentos = await response.json();
+  const response = await fetch('/api/listar-agenda');
+  const agendamentos = await response.json();
 
-    if (!response.ok) throw new Error(agendamentos.error || 'Erro ao carregar agenda.');
+  tabelaAgenda.innerHTML = '';
 
-    tabelaAgenda.innerHTML = agendamentos.length
-      ? agendamentos.map((item) => {
-          const statusClass = String(item.status || '').toLowerCase();
-          return `
-            <tr>
-              <td>${item.id}</td>
-              <td>${item.paciente?.nome || '-'}</td>
-              <td>${item.data || '-'}</td>
-              <td>${item.hora || '-'}</td>
-              <td><span class="badge ${statusClass}">${item.status || '-'}</span></td>
-            </tr>
-          `;
-        }).join('')
-      : '<tr><td colspan="5">Nenhum agendamento cadastrado.</td></tr>';
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem(error.message, 'error');
+  if (!Array.isArray(agendamentos) || agendamentos.length === 0) {
+    tabelaAgenda.innerHTML = '<tr><td colspan="5">Nenhum agendamento cadastrado.</td></tr>';
+    return;
   }
+
+  agendamentos.forEach((item) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.id}</td>
+      <td>${item.paciente?.nome || 'Paciente removido'}</td>
+      <td>${item.data || ''}</td>
+      <td>${item.hora || ''}</td>
+      <td><span class="badge">${item.status || ''}</span></td>
+    `;
+    tabelaAgenda.appendChild(tr);
+  });
 }
 
 formAgenda.addEventListener('submit', async (event) => {
   event.preventDefault();
-  mostrarMensagem('Salvando agendamento...');
 
-  const dados = {
+  const payload = {
     paciente_id: selectPaciente.value,
     data: document.getElementById('data').value,
     hora: document.getElementById('hora').value,
@@ -60,27 +61,23 @@ formAgenda.addEventListener('submit', async (event) => {
     const response = await fetch('/api/add-agenda', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados)
+      body: JSON.stringify(payload)
     });
+
     const data = await response.json();
 
-    if (!response.ok) throw new Error(data.error || 'Erro ao cadastrar agendamento.');
+    if (!response.ok) {
+      mostrarMensagem(data.error || 'Erro ao cadastrar agendamento.', 'erro');
+      return;
+    }
 
     formAgenda.reset();
-    mostrarMensagem(data.message || 'Agendamento cadastrado com sucesso.', 'success');
-    await carregarAgenda();
+    mostrarMensagem(data.message || 'Agendamento cadastrado com sucesso.', 'sucesso');
+    carregarAgenda();
   } catch (error) {
-    console.error(error);
-    mostrarMensagem(error.message, 'error');
+    mostrarMensagem('Erro de conexão com o servidor.', 'erro');
   }
 });
 
-(async function iniciar() {
-  try {
-    await carregarPacientesSelect();
-    await carregarAgenda();
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem(error.message, 'error');
-  }
-})();
+carregarPacientesSelect();
+carregarAgenda();
