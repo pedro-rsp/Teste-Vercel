@@ -1,44 +1,47 @@
-const form = document.getElementById('loginForm');
-const mensagem = document.getElementById('mensagem');
+import { checkEnv, sendError, supabaseRequest } from './database.js';
 
-form.addEventListener('submit', async function (event) {
-  event.preventDefault();
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método não permitido. Use POST.' });
+  }
 
-  mensagem.textContent = 'Entrando...';
-  mensagem.className = 'mensagem';
-
-  const email = document.getElementById('email').value.trim();
-  const senha = document.getElementById('senha').value.trim();
+  if (!checkEnv(res)) return;
 
   try {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, senha })
-    });
+    const { email, senha } = req.body || {};
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      mensagem.textContent = data.error || 'Erro ao fazer login.';
-      mensagem.className = 'mensagem erro';
-      return;
+    if (!email || !senha) {
+      return res.status(400).json({ error: 'Informe e-mail e senha.' });
     }
 
-    localStorage.setItem('usuario', JSON.stringify(data.usuario));
+    const emailLimpo = String(email).trim().toLowerCase();
+    const senhaLimpa = String(senha).trim();
 
-    mensagem.textContent = 'Login realizado com sucesso!';
-    mensagem.className = 'mensagem sucesso';
+    const usuarios = await supabaseRequest(
+      `usuarios?email=eq.${encodeURIComponent(emailLimpo)}&select=id,nome,email,senha,perfil&limit=1`
+    );
 
-    setTimeout(() => {
-      window.location.href = '/pacientes.html';
-    }, 800);
+    const usuario = Array.isArray(usuarios) ? usuarios[0] : null;
 
+    if (!usuario) {
+      return res.status(401).json({ error: 'Usuário não encontrado.' });
+    }
+
+    if (String(usuario.senha).trim() !== senhaLimpa) {
+      return res.status(401).json({ error: 'Senha incorreta.' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Login realizado com sucesso.',
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        perfil: usuario.perfil
+      }
+    });
   } catch (error) {
-    console.error(error);
-    mensagem.textContent = 'Erro de conexão com o servidor.';
-    mensagem.className = 'mensagem erro';
+    return sendError(res, error);
   }
-});
+}
